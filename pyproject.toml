@@ -5,29 +5,141 @@ build-backend = "hatchling.build"
 [project]
 name = "cruworldwine"
 version = "0.1.1"
-description = "Python client for the Cru Trading API"
+description = "The Python SDK for the Cru Trading API: Cru World Wine's bid and offer books, bids, offers, portfolio and trades"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
+authors = [{ name = "Cru World Wine" }]
+keywords = ["cru", "cru world wine", "fine wine", "wine trading", "trading api", "api client", "sdk", "bids", "offers"]
 dependencies = ["httpx>=0.24,<1"]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
 
 [project.urls]
+Homepage = "https://developers.cruworldwine.com"
 Documentation = "https://developers.cruworldwine.com"
+Source = "https://github.com/cruworldwine/cru-api-python"
+Changelog = "https://github.com/cruworldwine/cru-api-python/blob/main/CHANGELOG.md"
+Issues = "https://github.com/cruworldwine/cru-api-python/issues"
 
-[project.optional-dependencies]
-dev = ["pytest>=8", "mypy>=1.10"]
+[dependency-groups]
+test = [
+    "pytest>=8.3",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.100",
+]
+lint = ["ruff==0.17.2"]
+typecheck = ["mypy==2.4.0; python_version >= '3.10'"]
+release = ["twine>=6.2; python_version >= '3.10'"]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "typecheck" },
+    { include-group = "release" },
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cruworldwine"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "examples", "README.md", "CHANGELOG.md", "LICENSE"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+src = ["src", "tests", "examples"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # bugbear
+    "UP",   # pyupgrade, for Python 3.9
+    "SIM",  # simplify
+    "RUF",  # ruff's own
+    "S",    # bandit
+    "PT",   # pytest style
+    "ANN",  # annotations on the public API
+    "D",    # docstrings on the public API
+    "C4",   # comprehensions
+    "PIE",  # misc. lints
+    "PGH",  # no blanket type: ignore or noqa
+    "T10",  # no debugger left behind
+]
+ignore = [
+    "ANN401",  # JSON values are Any by nature
+    "D105",    # magic methods are documented by the protocol they implement
+    "D107",    # constructors are documented in the class docstring, Google style
+]
+# The API's own descriptions use typographic punctuation on purpose.
+allowed-confusables = ["×", "’", "‘", "“", "”", "–"]
+
+[tool.ruff.lint.per-file-ignores]
+# A resource class has a list() method, which shadows the builtin list in annotations inside the
+# class body, so the generated resources annotate with typing.List.
+"src/cruworldwine/resources/*.py" = ["UP006", "UP035"]
+"tests/**" = ["ANN", "D", "S101", "S105", "S106"]
+"examples/**" = ["S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pyupgrade]
+# Keep Optional and Union: models and signatures stay introspectable at run time on Python 3.9.
+keep-runtime-typing = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["cruworldwine"]
 
 [tool.mypy]
-strict = false
-warn_unused_ignores = true
+strict = true
+# The oldest version current mypy can check for; the test suite runs on 3.9 itself.
+python_version = "3.10"
+files = ["src", "examples"]
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source_pkgs = ["cruworldwine"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "@overload",
+    "raise NotImplementedError",
+]
