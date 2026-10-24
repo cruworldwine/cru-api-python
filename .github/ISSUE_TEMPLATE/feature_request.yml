@@ -1,0 +1,38 @@
+name: Feature request
+description: Something the SDK could do better or should do.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Endpoints, parameters and fields come from the Cru Trading API's OpenAPI spec, and the SDK
+        is generated from it. If what you need is new in the API itself, say so below: it is changed
+        in Cru's API, then in every SDK.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do, and what gets in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like
+      description: How the SDK could help. Code showing how you would use it is welcome.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Where the change belongs
+      options:
+        - The SDK only (clients, retries, typing, paging, logging, ...)
+        - The API (a new endpoint, parameter or field)
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do today instead

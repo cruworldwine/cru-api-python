@@ -1,0 +1,65 @@
+name: Bug report
+description: The SDK does not do what its documentation says.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug. Please **never paste a client key or secret, a token, or
+        customer data** here: use made-up values. A security problem goes to private vulnerability
+        reporting instead (see SECURITY.md), never to a public issue.
+  - type: input
+    id: sdk-version
+    attributes:
+      label: SDK version
+      description: The output of `python -c "import cruworldwine; print(cruworldwine.__version__)"`.
+      placeholder: 0.1.1
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version and operating system
+      placeholder: Python 3.13.2 on macOS 15
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client
+      options:
+        - Cru
+        - AsyncCru
+        - Both
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what the SDK did. Include the full traceback, if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: The smallest code that shows it
+      render: python
+  - type: input
+    id: request-id
+    attributes:
+      label: Request id
+      description: The `request_id` of the error, or `_request_id` of the answer, so Cru can find the request.
+      placeholder: req_...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug log
+      description: Run with `CRU_LOG=debug` and paste what it printed. It never holds credentials or bodies.
+      render: text

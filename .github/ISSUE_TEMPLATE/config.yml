@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Cru Trading API documentation
+    url: https://developers.cruworldwine.com
+    about: Guides and the API reference. Questions about your account or credentials go to Cru, not here.
+  - name: Report a security vulnerability
+    url: https://github.com/cruworldwine/cru-api-python/security/advisories/new
+    about: Privately, never in a public issue.
