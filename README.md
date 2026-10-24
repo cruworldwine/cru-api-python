@@ -65,6 +65,27 @@ client = cru.ping().client
 print(client.organisation, client.market, client.currency, client.scopes, client.expires_at)
 ```
 
+## Typed models
+
+Every endpoint is a typed method, and every answer is a typed model: a class per API object, with
+an attribute per API field and the API's descriptions as its docstring, so an editor completes
+and checks them. Attributes that can be null are `Optional`.
+
+```python
+for wine in cru.portfolio.list(is_listed=True).auto_paging_iter():  # PortfolioWine
+    for line in wine.portfolio:                                    # PortfolioLine
+        print(wine.wine_name, line.quantity, line.stock_type,
+              line.pricing.listing_price, line.pricing.net_proceeds, wine.currency)
+```
+
+Each resource has a module of methods in `cruworldwine/resources/` and a module of the models it
+returns in `cruworldwine/models/`. For example, `models/portfolio.py` has `PortfolioWine`,
+`PortfolioLine`, `LinePricing` and `LineWarehouse`, and `resources/portfolio.py` the
+`cru.portfolio` methods that return them. Import any model from `cruworldwine.models`.
+
+[`examples/`](examples) has scripts to run: `portfolio.py` prints your portfolio, `market.py` the
+bids and offers on a wine, and `place_bid.py` places a bid and, as a connected app, confirms it.
+
 ## Reading
 
 ```python
@@ -79,7 +100,7 @@ print(page.total, page.has_more)
 Every endpoint is a method on a resource of the client: `cru.market`, `cru.wines`, `cru.bids`,
 `cru.offers`, `cru.portfolio`, `cru.trades`, `cru.warehouses`, `cru.inbond_warehouses`,
 `cru.inbond_addresses`, `cru.photos` and `cru.confirmations`; `cru.ping()` is on the client.
-Lists return a `Page`: iterate it for its items, call `next_page()`, or `auto_paging_iter()` for
+[Every method](#every-method) lists them all. Lists return a `Page`: iterate it for its items, call `next_page()`, or `auto_paging_iter()` for
 every item of every page.
 
 ## Writing
@@ -124,6 +145,54 @@ method takes `extra_query` (and writes `extra_body`) for a parameter this versio
 and for an endpoint it does not have, `cru.request("GET", "/new/path", query={...})` returns the
 envelope.
 
+## Every method
+
+Generated from the spec; each method's docstring has the full description.
+
+<!-- sdkgen:methods -->
+| Method | Endpoint | Returns |
+|---|---|---|
+| `cru.ping()` | `GET /ping` | `Ping` |
+| `cru.portfolio.list(...)` | `GET /portfolio` | `Page[PortfolioWine]` |
+| `cru.offers.list(...)` | `GET /offers` | `Page[PortfolioWine]` |
+| `cru.offers.create(...)` | `POST /offers` | `Write[OfferResult]` |
+| `cru.offers.get(code)` | `GET /offers/{code}` | `PortfolioWine` |
+| `cru.offers.update(code, ...)` | `PATCH /offers/{code}` | `Write[OfferResult]` |
+| `cru.offers.remove(code, ...)` | `DELETE /offers/{code}` | `Write[OfferRemoveResult]` |
+| `cru.bids.list(...)` | `GET /bids` | `Page[OwnBid]` |
+| `cru.bids.place(...)` | `POST /bids` | `Write[BidResult]` |
+| `cru.bids.get(code)` | `GET /bids/{code}` | `OwnBid` |
+| `cru.bids.update(code, ...)` | `PATCH /bids/{code}` | `Write[BidResult]` |
+| `cru.bids.cancel(code, ...)` | `DELETE /bids/{code}` | `Write[BidResult]` |
+| `cru.bids.renew(code, ...)` | `POST /bids/{code}/renew` | `Write[BidResult]` |
+| `cru.market.list(...)` | `GET /market` | `Page[MarketWine]` |
+| `cru.market.get_wine(lwin18, ...)` | `GET /market/wines/{lwin18}` | `MarketWine` |
+| `cru.market.list_bids(...)` | `GET /market/bids` | `Page[MarketWine]` |
+| `cru.market.get_bid(code)` | `GET /market/bids/{code}` | `MarketBidDetail` |
+| `cru.market.get_wine_bids(lwin18, ...)` | `GET /market/wines/{lwin18}/bids` | `MarketWine` |
+| `cru.market.list_offers(...)` | `GET /market/offers` | `Page[MarketWine]` |
+| `cru.market.get_offer(code)` | `GET /market/offers/{code}` | `MarketOfferDetail` |
+| `cru.market.get_wine_offers(lwin18, ...)` | `GET /market/wines/{lwin18}/offers` | `MarketWine` |
+| `cru.market.buy_offer(code, ...)` | `POST /market/offers/{code}/buy` | `Write[BuyResult]` |
+| `cru.market.sell_to_bid(code, ...)` | `POST /market/bids/{code}/sell` | `Write[SellResult]` |
+| `cru.wines.search(...)` | `GET /wines` | `Page[Wine]` |
+| `cru.wines.get(lwin18)` | `GET /wines/{lwin18}` | `WineDetail` |
+| `cru.trades.list_purchases(...)` | `GET /trades/purchases` | `Page[Purchase]` |
+| `cru.trades.list_sales(...)` | `GET /trades/sales` | `Page[Sale]` |
+| `cru.warehouses.list()` | `GET /warehouses` | `List[Warehouse]` |
+| `cru.warehouses.get(code)` | `GET /warehouses/{code}` | `Warehouse` |
+| `cru.inbond_warehouses.list()` | `GET /warehouses/inbond` | `List[InbondWarehouse]` |
+| `cru.inbond_warehouses.suggest(...)` | `POST /warehouses/inbond` | `Write[InbondWarehouseResult]` |
+| `cru.inbond_warehouses.get(id)` | `GET /warehouses/inbond/{id}` | `InbondWarehouse` |
+| `cru.inbond_addresses.list()` | `GET /addresses/inbond` | `List[InbondAddress]` |
+| `cru.inbond_addresses.add(...)` | `POST /addresses/inbond` | `Write[InbondAddressResult]` |
+| `cru.inbond_addresses.remove(id, ...)` | `DELETE /addresses/inbond/{id}` | `Write[InbondAddressResult]` |
+| `cru.confirmations.get(code)` | `GET /confirmations/{code}` | `Confirmation` |
+| `cru.confirmations.confirm(code)` | `POST /confirmations/{code}` | `Write[Any]` |
+| `cru.confirmations.cancel(code)` | `DELETE /confirmations/{code}` | `None` |
+| `cru.photos.get(id)` | `GET /photos/{id}` | `bytes` |
+<!-- /sdkgen:methods -->
+
 ## Running the tests
 
 The tests need no credentials and make no network calls: every call goes through a mocked
@@ -142,8 +211,9 @@ uv run --with httpx --with pytest --with-editable . pytest
 
 ## Development
 
-`models.py` and `_resources.py` are generated from the OpenAPI spec (`spec/openapi.yaml` is the
-copy they were generated from); do not edit them. Cru regenerates them from the API's own
+`cruworldwine/models/`, `cruworldwine/resources/` and the method table above are generated from
+the OpenAPI spec (`spec/openapi.yaml` is the copy they were generated from); each generated file
+starts with `DO NOT EDIT`. The rest is written by hand. Cru regenerates them from the API's own
 repository after each API change:
 
 ```sh

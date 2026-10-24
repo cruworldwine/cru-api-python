@@ -11,7 +11,7 @@ import httpx
 
 from . import _errors, models
 from ._models import Model, _registry
-from ._resources import Resources
+from .resources import Resources
 from ._types import Page, Response, Write
 from ._version import VERSION
 
