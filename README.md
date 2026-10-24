@@ -9,6 +9,7 @@
 [![CI](https://github.com/cruworldwine/cru-api-python/actions/workflows/ci.yml/badge.svg)](https://github.com/cruworldwine/cru-api-python/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/cruworldwine.svg)](https://pypi.org/project/cruworldwine/)
 [![Python versions](https://img.shields.io/pypi/pyversions/cruworldwine.svg)](https://pypi.org/project/cruworldwine/)
+[![License](https://img.shields.io/github/license/cruworldwine/cru-api-python.svg)](https://github.com/cruworldwine/cru-api-python/blob/main/LICENSE)
 
 The Python SDK for the [Cru Trading API](https://developers.cruworldwine.com), Cru World Wine's
 partner REST API. Read Cru's live bid and offer books for every wine, manage your own bids and
