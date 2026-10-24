@@ -7,8 +7,8 @@ import httpx
 import pytest
 
 import cruworldwine
-from conftest import envelope, error, make
 from cruworldwine import _logs
+from tests.helpers import envelope, error, make
 
 KEY = 'cru_live_KEY_4f1d9c'
 SECRET = 'SECRET_8e2b7a'

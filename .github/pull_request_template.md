@@ -9,7 +9,7 @@
 ## Checklist
 
 - [ ] It changes no generated file by hand (`models/`, `resources/`, the README method table,
-      `spec/`): API changes come from the OpenAPI spec in Cru's API repository.
+      `api/`): API changes come from the OpenAPI spec in Cru's API repository.
 - [ ] `uv run ruff check .`, `uv run ruff format --check .`, `uv run mypy` and `uv run pytest` pass.
 - [ ] New behaviour has tests, for `Cru` and `AsyncCru` alike.
 - [ ] `CHANGELOG.md` has a line under `## [Unreleased]`; a public API change says what users must do.

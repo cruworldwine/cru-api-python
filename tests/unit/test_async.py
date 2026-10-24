@@ -11,7 +11,7 @@ import httpx
 import pytest
 
 import cruworldwine
-from conftest import envelope, error, partner
+from tests.helpers import envelope, error, partner
 
 BIDS = ('CB-0', 'CB-1', 'CB-2')
 

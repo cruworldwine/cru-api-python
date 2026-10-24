@@ -304,7 +304,7 @@ with a changelog entry. Only the latest minor release gets fixes, security fixes
 ## Development
 
 `cruworldwine/models/`, `cruworldwine/resources/` and the method table above are generated from
-the OpenAPI spec (`spec/openapi.yaml` is the copy they were generated from); each generated file
+the OpenAPI spec (`api/openapi.yaml` is the copy they were generated from); each generated file
 starts with `DO NOT EDIT`. The rest is written by hand. [CONTRIBUTING.md](CONTRIBUTING.md) explains
 how to set up, test, lint, type-check, build and release.
 
@@ -312,7 +312,7 @@ The tests need no credentials and make no network calls: every call goes through
 transport.
 
 ```sh
-uv run pytest
+uv run pytest tests/unit
 ```
 
 ## Security

@@ -9,8 +9,8 @@ import httpx
 import pytest
 
 import cruworldwine
-from conftest import app, envelope, error, make, partner, sleeps
 from cruworldwine import _base_client
+from tests.helpers import app, envelope, error, make, partner, sleeps
 
 PONG = {'pong': True, 'client': {}}
 

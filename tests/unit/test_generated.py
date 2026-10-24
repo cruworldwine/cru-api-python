@@ -7,9 +7,9 @@ import httpx
 import pytest
 
 import cruworldwine
-from conftest import envelope, partner
 from cruworldwine import AsyncPage, Page, Write, resources
 from cruworldwine.resources import _OPS
+from tests.helpers import envelope, partner
 
 OPTIONS = ('extra_headers', 'extra_query', 'timeout', 'max_retries')
 DUMMY = {str: 'x', int: 1, float: 1.5, bool: True}

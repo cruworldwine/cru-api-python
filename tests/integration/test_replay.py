@@ -14,11 +14,13 @@ import httpx
 import pytest
 
 import cruworldwine
-from conftest import make
 from cruworldwine import AsyncPage, Model, Page, Write
 from cruworldwine.resources import _OPS
+from tests.helpers import make
 
 RUN = os.environ.get('CRU_CAPTURES')
+# Every request goes to the mock transport; naming a host keeps CRU_MARKET or CRU_BASE_URL out of it.
+BASE_URL = 'https://api.example.test/api/v1'
 FILES = sorted(glob.glob(os.path.join(RUN, 'captures', '*.json'))) if RUN else []
 ROUTES = sorted(
     (
@@ -69,9 +71,9 @@ def test_replay(path, kind, run):
         return httpx.Response(cap['status'], json=body)
 
     if req.get('grant') == 'oauth':
-        client = make(kind, respond, access_token='cru_at_x', max_retries=0)
+        client = make(kind, respond, access_token='cru_at_x', max_retries=0, base_url=BASE_URL)
     else:
-        client = make(kind, respond, client_key='k', client_secret='s', max_retries=0)
+        client = make(kind, respond, client_key='k', client_secret='s', max_retries=0, base_url=BASE_URL)
     resource, name = op.sdk
     target = client if resource == 'client' else getattr(client, resource)
     method = getattr(target, name)

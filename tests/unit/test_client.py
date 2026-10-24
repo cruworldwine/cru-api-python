@@ -4,8 +4,8 @@ import httpx
 import pytest
 
 import cruworldwine
-from conftest import app, collect, envelope, error, partner, sleeps
 from cruworldwine import models
+from tests.helpers import app, collect, envelope, error, partner, sleeps
 
 BID = {
     'code': 'CB-1001',
