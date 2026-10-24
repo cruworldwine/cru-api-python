@@ -14,7 +14,7 @@ import pytest
 
 import cruworldwine
 from cruworldwine import Model, Page, Write
-from cruworldwine._resources import _OPS
+from cruworldwine.resources import _OPS
 
 RUN = os.environ.get('CRU_CAPTURES')
 FILES = sorted(glob.glob(os.path.join(RUN, 'captures', '*.json'))) if RUN else []
