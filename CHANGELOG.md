@@ -45,6 +45,13 @@ The next release is **0.1.1**: everything below, including the per-resource layo
   at least 90% and a Hypothesis property test of the models; a release workflow that publishes to
   PyPI by Trusted Publishing with build provenance attestations; Dependabot; issue and pull request
   templates; `CONTRIBUTING.md` and `SECURITY.md`; `uv.lock` for reproducible development and CI.
+- Guides in `docs/`: authentication, configuration, async, pagination, writes and confirmations,
+  errors, compatibility and architecture. The README is shorter and links to them.
+- Repository layout, with no change to the package or its API: the spec copy is in
+  `api/openapi.yaml` (it was `spec/`); tests are split into `tests/unit/` and `tests/integration/`,
+  where a new live smoke test runs read-only calls when `CRU_LIVE=1`; `hack/` holds the scripts that
+  regenerate the code and verify it is up to date; a `Makefile` has a target for every task, and
+  CI runs those same targets.
 
 ### Changed
 
