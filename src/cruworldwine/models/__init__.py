@@ -2,18 +2,29 @@
 
 """Every model the API answers with. Each module holds the models one resource returns."""
 
-from .ping import ApiClient, Ping
-from .portfolio import LinePricing, LineWarehouse, PortfolioLine, PortfolioWine
-from .offers import OfferRemoveResult, OfferResult
 from .bids import BidResult, OwnBid
-from .market import BidRequirements, BuyResult, LastTrade, MarketBid, MarketBidDetail, MarketOffer, MarketOfferDetail, MarketWine, Order, SellResult
-from .wines import Wine, WineDetail
-from .trades import Purchase, PurchaseUnit, Sale
-from .warehouses import Warehouse, WarehouseAddress
-from .inbond_warehouses import InbondWarehouse, InbondWarehouseResult
-from .inbond_addresses import InbondAddress, InbondAddressResult
 from .confirmations import Confirmation, ConfirmationError, InstructionResult, Preview, Staged, StagedConfirmation
 from .envelope import ErrorEntry, Meta, Pagination
+from .inbond_addresses import InbondAddress, InbondAddressResult
+from .inbond_warehouses import InbondWarehouse, InbondWarehouseResult
+from .market import (
+    BidRequirements,
+    BuyResult,
+    LastTrade,
+    MarketBid,
+    MarketBidDetail,
+    MarketOffer,
+    MarketOfferDetail,
+    MarketWine,
+    Order,
+    SellResult,
+)
+from .offers import OfferRemoveResult, OfferResult
+from .ping import ApiClient, Ping
+from .portfolio import LinePricing, LineWarehouse, PortfolioLine, PortfolioWine
+from .trades import Purchase, PurchaseUnit, Sale
+from .warehouses import Warehouse, WarehouseAddress
+from .wines import Wine, WineDetail
 
 __all__ = [
     'ApiClient',

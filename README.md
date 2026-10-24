@@ -6,9 +6,16 @@
 
 # Cru Trading API for Python
 
+[![CI](https://github.com/cruworldwine/cru-api-python/actions/workflows/ci.yml/badge.svg)](https://github.com/cruworldwine/cru-api-python/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/cruworldwine.svg)](https://pypi.org/project/cruworldwine/)
+[![Python versions](https://img.shields.io/pypi/pyversions/cruworldwine.svg)](https://pypi.org/project/cruworldwine/)
+
 The Python SDK for the [Cru Trading API](https://developers.cruworldwine.com), Cru World Wine's
 partner REST API. Read Cru's live bid and offer books for every wine, manage your own bids and
-offers, see your portfolio, purchases and sales, and trade: buy an offer or sell into a bid.
+offers, see your portfolio, purchases and sales, and trade: buy an offer or sell into a bid. It has
+a synchronous client, `Cru`, and an asyncio one, `AsyncCru`, with typed models for every answer,
+automatic retries and OAuth token refresh, and nothing to install beyond
+[httpx](https://www.python-httpx.org).
 
 ## Installation
 
@@ -16,138 +23,91 @@ offers, see your portfolio, purchases and sales, and trade: buy an offer or sell
 pip install cruworldwine
 ```
 
-Python 3.9 or later. The only dependency is [httpx](https://www.python-httpx.org).
+Python 3.9 or later.
 
 ## Connecting
 
-There are two ways to connect. Each answers on one market's host,
-`https://{market}.cruworldwine.com/api/v1`, where market is `uk` (the default), `us`, `hk`, `sg`,
-`eu`, `ae` or `cn`. A credential works on its own market only.
-
-### With a partner credential
-
-Cru issues a partner credential: a key (`cru_live_...`) and a secret, which is shown once. Keep
-both out of source control. A partner credential's writes run at once.
+With a partner credential, whose writes run at once:
 
 ```python
 from cruworldwine import Cru
 
-cru = Cru(client_key="cru_live_...", client_secret="...", market="uk")
+with Cru(client_key='cru_live_...', client_secret='...', market='uk') as cru:
+    client = cru.ping().client
+    print(client.organisation, client.market, client.currency, client.scopes)
 ```
 
-### As a connected app (OAuth 2.0)
-
-An app that acts for a Cru customer gets their tokens with the OAuth 2.0 authorization code flow
-with PKCE (S256), at `/api/oauth/authorize` and `/api/oauth/token` on the market's host. The SDK
-uses the access token and, given the refresh token and your app's client id, refreshes it once when
-it expires. A refresh token works once, so store the new tokens `on_token_refresh` hands you. A
-connected app's writes are staged: nothing happens until the customer confirms them.
+Or with asyncio, here as a connected app acting for a customer, whose writes wait for the
+customer to confirm them:
 
 ```python
-cru = Cru(
-    access_token=tokens["access_token"],
-    refresh_token=tokens["refresh_token"],
-    oauth_client_id="your-client-id",
-    on_token_refresh=save_tokens,
-)
+import asyncio
+
+from cruworldwine import AsyncCru
+
+
+async def main() -> None:
+    async with AsyncCru(access_token='...', refresh_token='...', oauth_client_id='...') as cru:
+        page = await cru.bids.list(status=['live'])
+        async for bid in page:
+            print(bid.code, bid.price, bid.quantity)
+
+
+asyncio.run(main())
 ```
 
-### From the environment
-
-Anything not given is read from `CRU_CLIENT_KEY`, `CRU_CLIENT_SECRET`, `CRU_ACCESS_TOKEN`,
-`CRU_MARKET` and `CRU_BASE_URL`, so `Cru()` alone works when they are set. Other options:
-`base_url`, `timeout` (seconds, default 30), `max_retries` (default 2) and `http_client`.
-
-### Check the connection
-
-```python
-client = cru.ping().client
-print(client.organisation, client.market, client.currency, client.scopes, client.expires_at)
-```
+`Cru()` alone reads `CRU_CLIENT_KEY` and `CRU_CLIENT_SECRET` (or `CRU_ACCESS_TOKEN`) and
+`CRU_MARKET` from the environment. [Authentication](docs/authentication.md) covers both ways in.
 
 ## Typed models
 
-Every endpoint is a typed method, and every answer is a typed model: a class per API object, with
-an attribute per API field and the API's descriptions as its docstring, so an editor completes
-and checks them. Attributes that can be null are `Optional`.
+Every endpoint is a typed method, and every answer a typed model with an attribute per API field
+and the API's descriptions as docstrings, so an editor completes and checks them. Fields this
+version does not know are kept in `.raw`.
 
 ```python
 for wine in cru.portfolio.list(is_listed=True).auto_paging_iter():  # PortfolioWine
-    for line in wine.portfolio:                                    # PortfolioLine
-        print(wine.wine_name, line.quantity, line.stock_type,
-              line.pricing.listing_price, line.pricing.net_proceeds, wine.currency)
+    for line in wine.portfolio:  # PortfolioLine
+        print(wine.wine_name, line.quantity, line.pricing.listing_price, line.pricing.net_proceeds)
 ```
 
-Each resource has a module of methods in `cruworldwine/resources/` and a module of the models it
-returns in `cruworldwine/models/`. For example, `models/portfolio.py` has `PortfolioWine`,
-`PortfolioLine`, `LinePricing` and `LineWarehouse`, and `resources/portfolio.py` the
-`cru.portfolio` methods that return them. Import any model from `cruworldwine.models`.
+Import any model from `cruworldwine.models`.
 
-[`examples/`](examples) has scripts to run: `portfolio.py` prints your portfolio, `market.py` the
-bids and offers on a wine, and `place_bid.py` places a bid and, as a connected app, confirms it.
+## Documentation
 
-## Reading
+- [Authentication](docs/authentication.md): partner credentials, connected apps and OAuth refresh,
+  the environment.
+- [Configuration](docs/configuration.md): constructor and per-call options, `with_options()`,
+  timeouts, retries, logging, `app_info`.
+- [Async](docs/async.md): `AsyncCru`, async paging and concurrency.
+- [Pagination](docs/pagination.md): pages, and walking every item.
+- [Writes and confirmations](docs/writes-and-confirmations.md): idempotency references, staged
+  writes and confirming them.
+- [Errors](docs/errors.md): the error classes, what they hold, and request ids.
+- [Compatibility](docs/compatibility.md): tolerant models, values that may grow, and the versioning
+  policy.
+- [Architecture](docs/architecture.md): how the SDK is built, the life of a request, and the code
+  generation.
+- The API itself: [developers.cruworldwine.com](https://developers.cruworldwine.com).
 
-```python
-for wine in cru.market.list_bids(lwin=["101174520151200750"]).auto_paging_iter():
-    for bid in wine.bids:
-        print(wine.wine_name, bid.price, bid.quantity)
+## Examples
 
-page = cru.portfolio.list(stock_type=["cru"], is_listed=False, limit=50)
-print(page.total, page.has_more)
-```
+[`examples/`](examples) has scripts to run with credentials in the environment: `portfolio.py`
+prints your portfolio, `market.py` the bids and offers on a wine, `place_bid.py` places a bid and,
+as a connected app, confirms it, and `async_market.py` asks for several wines at once with
+`AsyncCru`.
 
-Every endpoint is a method on a resource of the client: `cru.market`, `cru.wines`, `cru.bids`,
-`cru.offers`, `cru.portfolio`, `cru.trades`, `cru.warehouses`, `cru.inbond_warehouses`,
-`cru.inbond_addresses`, `cru.photos` and `cru.confirmations`; `cru.ping()` is on the client.
-[Every method](#every-method) lists them all. Lists return a `Page`: iterate it for its items, call `next_page()`, or `auto_paging_iter()` for
-every item of every page.
+## Versioning and support
 
-## Writing
-
-```python
-write = cru.bids.place(lwin18="101174520151200750", quantity=6, price=1450)
-if write.staged:                       # a connected app: nothing has happened yet
-    print(write.confirmation.preview.summary)
-    write = cru.confirmations.confirm(write.confirmation.code)
-print(write.result.bid.status)
-```
-
-A partner write needs a `reference`, its idempotency key. The SDK makes one when you do not pass
-it and keeps it across its own retries, so a retry can never act twice. Pass your own to retry
-safely across restarts.
-
-## Errors
-
-Every error is a `CruError`. The API's are `APIStatusError` subclasses by status
-(`NotFoundError`, `UnprocessableEntityError`, `PriceChangedError`, ...), with `code`, `message`,
-`field`, `details`, `errors` and `request_id`.
-
-```python
-from cruworldwine import PriceChangedError, UnprocessableEntityError
-
-try:
-    cru.market.buy_offer("CS-12345", quantity=1, max_price=1500)
-except PriceChangedError:
-    ...  # preview again
-except UnprocessableEntityError as e:
-    print(e.code, e.field, e.message)
-```
-
-Reads and partner writes are retried on connection errors, 429 and 5xx (`max_retries=2`), honouring
-`Retry-After`. Redirects are never followed, so your credentials never reach another host.
-
-## Built for an API that changes
-
-The API grows. Fields this version does not know are kept: every model has `.raw`, and
-`model["new_field"]` reads one. Values listed as "more may be added" are plain strings. Every
-method takes `extra_query` (and writes `extra_body`) for a parameter this version does not know,
-and for an endpoint it does not have, `cru.request("GET", "/new/path", query={...})` returns the
-envelope.
+The SDK follows [semantic versioning](https://semver.org). While it is 0.x, a minor release may
+change the public API, and every such change is in the [changelog](CHANGELOG.md); patch releases
+never do. It supports Python 3.9 to 3.15 on Linux, macOS and Windows, and only the latest minor
+release gets fixes. [Compatibility](docs/compatibility.md) has the whole policy.
 
 ## Every method
 
-Generated from the spec; each method's docstring has the full description.
+Generated from the spec; each method's docstring has the full description. `AsyncCru` has the
+same methods: await them, and a `Page` is an `AsyncPage`.
 
 <!-- sdkgen:methods -->
 | Method | Endpoint | Returns |
@@ -179,12 +139,12 @@ Generated from the spec; each method's docstring has the full description.
 | `cru.wines.get(lwin18)` | `GET /wines/{lwin18}` | `WineDetail` |
 | `cru.trades.list_purchases(...)` | `GET /trades/purchases` | `Page[Purchase]` |
 | `cru.trades.list_sales(...)` | `GET /trades/sales` | `Page[Sale]` |
-| `cru.warehouses.list()` | `GET /warehouses` | `List[Warehouse]` |
+| `cru.warehouses.list()` | `GET /warehouses` | `list[Warehouse]` |
 | `cru.warehouses.get(code)` | `GET /warehouses/{code}` | `Warehouse` |
-| `cru.inbond_warehouses.list()` | `GET /warehouses/inbond` | `List[InbondWarehouse]` |
+| `cru.inbond_warehouses.list()` | `GET /warehouses/inbond` | `list[InbondWarehouse]` |
 | `cru.inbond_warehouses.suggest(...)` | `POST /warehouses/inbond` | `Write[InbondWarehouseResult]` |
 | `cru.inbond_warehouses.get(id)` | `GET /warehouses/inbond/{id}` | `InbondWarehouse` |
-| `cru.inbond_addresses.list()` | `GET /addresses/inbond` | `List[InbondAddress]` |
+| `cru.inbond_addresses.list()` | `GET /addresses/inbond` | `list[InbondAddress]` |
 | `cru.inbond_addresses.add(...)` | `POST /addresses/inbond` | `Write[InbondAddressResult]` |
 | `cru.inbond_addresses.remove(id, ...)` | `DELETE /addresses/inbond/{id}` | `Write[InbondAddressResult]` |
 | `cru.confirmations.get(code)` | `GET /confirmations/{code}` | `Confirmation` |
@@ -193,33 +153,8 @@ Generated from the spec; each method's docstring has the full description.
 | `cru.photos.get(id)` | `GET /photos/{id}` | `bytes` |
 <!-- /sdkgen:methods -->
 
-## Running the tests
+## Contributing, security and licence
 
-The tests need no credentials and make no network calls: every call goes through a mocked
-transport.
-
-```sh
-uv run --with httpx --with pytest --with-editable . pytest
-```
-
-- `tests/test_client.py`: authentication, the environment, query and path encoding, references
-  kept across retries, retries and back-off, the OAuth refresh, every error class, staged writes
-  and confirmations, paging, and fields and values this version does not know.
-- `tests/test_replay.py`: replays real API answers through the method that asks for each one and
-  checks every typed field against what the API sent. It runs when `CRU_CAPTURES` names a capture
-  run, and is skipped otherwise. Captures hold customer data, so keep them out of the repository.
-
-## Development
-
-`cruworldwine/models/`, `cruworldwine/resources/` and the method table above are generated from
-the OpenAPI spec (`spec/openapi.yaml` is the copy they were generated from); each generated file
-starts with `DO NOT EDIT`. The rest is written by hand. Cru regenerates them from the API's own
-repository after each API change:
-
-```sh
-uv run --quiet --with pyyaml==6.0.3 python docs/api/tools/sdkgen/generate.py --python <this checkout>
-```
-
-## License
-
-Apache License 2.0. See [LICENSE](LICENSE).
+[CONTRIBUTING.md](CONTRIBUTING.md) explains the layout, the Makefile and how releases are cut.
+Report a vulnerability privately, as [SECURITY.md](SECURITY.md) explains, never in a public issue.
+Apache License 2.0; see [LICENSE](LICENSE).
