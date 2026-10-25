@@ -96,7 +96,8 @@ repository. `make live` calls the real API with the credential in your environme
 
 Releases are cut from `main` by a maintainer:
 
-1. Bump the version in `pyproject.toml` and `src/cruworldwine/_version.py`.
+1. Bump the version in `pyproject.toml` and `src/cruworldwine/_version.py`, then run `uv lock`:
+   `uv.lock` records the package's own version, and CI installs with `--locked`.
 2. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD`, open a new empty
    `## [Unreleased]` above it, and update the links at the bottom.
 3. Merge that to `main`, then tag the merge commit with an annotated tag (`-s` instead of `-a`

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cruworldwine"
-version = "0.1.1"
+version = "0.2.0"
 description = "The Python SDK for the Cru Trading API: Cru World Wine's bid and offer books, bids, offers, portfolio and trades"
 readme = "README.md"
 requires-python = ">=3.9"

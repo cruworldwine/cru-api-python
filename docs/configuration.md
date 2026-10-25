@@ -123,13 +123,13 @@ bodies. httpx logs its own lines through the `httpx` logger.
 ## app_info and the User-Agent
 
 Every request carries a User-Agent such as
-`cruworldwine-python/0.1.1 Python/3.13.2 (Linux; x86_64)`. If you build an integration others use,
+`cruworldwine-python/0.2.0 Python/3.13.2 (Linux; x86_64)`. If you build an integration others use,
 name it with `app_info`; it is added at the end, so Cru can tell integrations apart when helping
 you:
 
 ```python
 cru = Cru(app_info=('cellar-sync', '2.3.0', 'https://cellar-sync.example'))
-# cruworldwine-python/0.1.1 Python/3.13.2 (Linux; x86_64) cellar-sync/2.3.0 (https://cellar-sync.example)
+# cruworldwine-python/0.2.0 Python/3.13.2 (Linux; x86_64) cellar-sync/2.3.0 (https://cellar-sync.example)
 ```
 
 The version and the URL may be `None`.

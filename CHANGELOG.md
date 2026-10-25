@@ -7,8 +7,9 @@ change the public API, and each such change is listed under **Changed** or **Rem
 
 ## [Unreleased]
 
-The next release is **0.1.1**: everything below, including the per-resource layout already on
-`main`. When it is cut, this heading becomes `## [0.1.1] - <date>`.
+## [0.2.0] - 2026-10-24
+
+The first release on PyPI. It changes behaviour 0.1.0 had (see **Changed**), hence 0.2.0.
 
 ### Added
 
@@ -98,5 +99,6 @@ The next release is **0.1.1**: everything below, including the per-resource layo
 - Fields and values this version does not know are kept in `.raw`; `extra_query`, `extra_body` and
   `client.request()` reach parameters and endpoints it does not know.
 
-[Unreleased]: https://github.com/cruworldwine/cru-api-python/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/cruworldwine/cru-api-python/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/cruworldwine/cru-api-python/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/cruworldwine/cru-api-python/releases/tag/v0.1.0
