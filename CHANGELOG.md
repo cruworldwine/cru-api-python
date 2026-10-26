@@ -7,6 +7,10 @@ change the public API, and each such change is listed under **Changed** or **Rem
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-26
+
+The first release on PyPI. It changes behaviour 0.1.0 had (see **Changed**), hence 0.2.0.
+
 ### Added
 
 - The sandbox: `environment='sandbox'` on `Cru` and `AsyncCru`, or `CRU_ENVIRONMENT=sandbox`,
@@ -20,13 +24,6 @@ change the public API, and each such change is listed under **Changed** or **Rem
   `CRU_MARKET` or `uk`). With a `base_url`, it is the market of a Cru host such as
   `hk.crusandbox.com`, else the `market` given, else `None`; `None` too for a market not in
   `MARKETS`.
-
-## [0.2.0] - 2026-10-24
-
-The first release on PyPI. It changes behaviour 0.1.0 had (see **Changed**), hence 0.2.0.
-
-### Added
-
 - `AsyncCru`, an asyncio client on `httpx.AsyncClient`, with the same constructor, resources and
   methods as `Cru`, each a coroutine. It retries, refreshes OAuth tokens, raises and parses exactly
   as `Cru` does; the two share that logic rather than duplicating it. Use it as an async context
@@ -80,7 +77,8 @@ The first release on PyPI. It changes behaviour 0.1.0 had (see **Changed**), hen
 - `Write.request_id` also comes from `meta.request_id`, not only from the `X-Request-Id` header.
 - The text of an error without an API code reads `502: HTTP 502` (it was `502 : HTTP 502`).
 - An invalid `market`, a `base_url` that is not http or https, a negative `timeout` or
-  `max_retries`, or an invalid `app_info` raise `CruError` when the client is made.
+  `max_retries`, an invalid `app_info`, or an `environment` (or `CRU_ENVIRONMENT`) other than live
+  or sandbox raise `CruError` when the client is made.
 - Annotations use built-in generics (`dict`, `list`); the README's table shows `list[Warehouse]`.
 - Internal: the generated resources describe each endpoint with a typed operation descriptor, so
   every method's return type is checked by mypy; `Cru` and `AsyncCru` build on a shared
