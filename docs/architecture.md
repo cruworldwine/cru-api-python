@@ -7,9 +7,11 @@ where to change what. For setting up and running the checks, see [CONTRIBUTING.m
 
 ```text
 src/cruworldwine/
-├── __init__.py         the public names: Cru, AsyncCru, the errors, Page, AsyncPage, Write, Model, models
+├── __init__.py         the public names: Cru, AsyncCru, the errors, Page, AsyncPage, Write, Model, MARKETS, models
 ├── _client.py          Cru and AsyncCru: their constructors and documentation
 ├── _base_client.py     the shared core: BaseClient, and the sync and async transports
+├── _markets.py         MarketInfo, MARKETS and lookup_market(), and which market a client calls
+├── _market_table.py    generated: each environment's URL template and every market
 ├── _operations.py      Operation, Op and PageOp: typed descriptions of the endpoints
 ├── _types.py           Page, AsyncPage, Write and Response
 ├── _models.py          Model, the base of every API object, and the registry of model classes
@@ -69,14 +71,14 @@ Take `cru.bids.place(lwin18=..., quantity=6, price=1450, timeout=10)`.
 
 ## How the generated code is made
 
-`src/cruworldwine/models/`, `src/cruworldwine/resources/`, the method table in `README.md` and
-`api/openapi.yaml` are generated from the Cru Trading API's OpenAPI spec, which lives in Cru's API
-repository with the generator:
+`src/cruworldwine/models/`, `src/cruworldwine/resources/`, `src/cruworldwine/_market_table.py`,
+the method table in `README.md` and `api/openapi.yaml` are generated from the Cru Trading API's
+OpenAPI spec, which lives in Cru's API repository with the generator:
 
 ```text
 openapi-v1-implemented.yaml      the spec, in the API repository
-  → sdkgen/ir.py                 reads it into models and operations, shared by every SDK's generator
-  → sdkgen/gen_python.py         writes this SDK's models/, resources/ and README table
+  → sdkgen/ir.py                 reads it into models, operations, environments and markets, shared by every SDK's generator
+  → sdkgen/gen_python.py         writes this SDK's models/, resources/, _market_table.py and README table
   → generate.py                  runs the generators, and copies the spec to api/openapi.yaml
 ```
 
@@ -91,6 +93,8 @@ web-root; `make verify-generated` fails if regenerating would change anything.
 | To change | Edit |
 |---|---|
 | An endpoint, parameter, field, description or method name | The spec in Cru's API repository (`x-cru-sdk` names the resource and method), then `make generate` |
+| A market, or an environment's URL | The spec's `x-cru-markets` and `servers`, then `make generate` |
+| How a client picks its host and its `market_info` | `_base_client.py` and `_markets.py` |
 | How generated code looks | `gen_python.py` in Cru's API repository, then `make generate` |
 | Retries, back-off, timeouts, refreshing, logging, request building | `_base_client.py` and `_constants.py` |
 | The constructors and their documentation | `_client.py` |

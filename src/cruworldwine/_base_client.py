@@ -27,9 +27,11 @@ from urllib.parse import quote, urlsplit
 
 import httpx
 
-from . import _errors, models
+from . import _errors, _markets, models
 from ._constants import DEFAULT_TIMEOUT, INITIAL_RETRY_DELAY, MAX_BACKOFF, MAX_RETRY_DELAY, RETRY_STATUSES
 from ._logs import logger
+from ._market_table import ENVIRONMENTS
+from ._markets import MarketInfo
 from ._models import _registry, with_request_id
 from ._operations import M, Op, Operation, PageOp, R
 from ._types import AsyncPage, Page, Response, Write
@@ -119,6 +121,7 @@ class BaseClient(Generic[_HttpT]):
         oauth_client_secret: Optional[str],
         on_token_refresh: Optional[Callable[[dict[str, Any]], Any]],
         market: Optional[str],
+        environment: Optional[str],
         base_url: Optional[str],
         timeout: Optional[Timeout],
         max_retries: int,
@@ -138,7 +141,11 @@ class BaseClient(Generic[_HttpT]):
         self.oauth_client_id = oauth_client_id
         self.oauth_client_secret = oauth_client_secret
         self.on_token_refresh = on_token_refresh
-        self.base_url = _base_url(base_url or os.environ.get('CRU_BASE_URL'), market or os.environ.get('CRU_MARKET'))
+        market = market or os.environ.get('CRU_MARKET')
+        environment = _markets.environment_name(environment or os.environ.get('CRU_ENVIRONMENT') or 'live')
+        self.base_url = _base_url(base_url or os.environ.get('CRU_BASE_URL'), market, environment)
+        # Without a base_url, self.base_url is the Cru host built from the market, so its host says it.
+        self._market_info = _markets.market_of(self.base_url, market)
         self.max_retries = _max_retries(max_retries)
         if timeout is not None:
             self.timeout = _timeout(timeout)
@@ -172,6 +179,16 @@ class BaseClient(Generic[_HttpT]):
     @refresh_token.setter
     def refresh_token(self, value: Optional[str]) -> None:
         self._auth.refresh_token = value
+
+    @property
+    def market_info(self) -> Optional[MarketInfo]:
+        """The market this client calls, from MARKETS: its code, name, currency and URLs.
+
+        With no base_url, the market the client was made for. With one, the market of a Cru host
+        such as hk.crusandbox.com, else the market given, if any. None when there is none, or it is
+        not in MARKETS.
+        """
+        return self._market_info
 
     @property
     def is_partner(self) -> bool:
@@ -743,12 +760,13 @@ def _write(op: Operation, response: httpx.Response, data: dict[str, Any], reques
     return Write(result, None, response.headers.get('idempotent-replayed') == 'true', request_id)
 
 
-def _base_url(base_url: Optional[str], market: Optional[str]) -> str:
+def _base_url(base_url: Optional[str], market: Optional[str], environment: str) -> str:
     if not base_url:
         market = (market or 'uk').strip().lower()
         if not _MARKET.fullmatch(market):
             raise _errors.CruError(f'market must be a market code such as uk, us or hk, not {market!r}')
-        base_url = f'https://{market}.cruworldwine.com/api/v1'
+        # A code the table does not know still makes a host, so a new market needs no release.
+        base_url = ENVIRONMENTS[environment].replace('{market}', market)
     if urlsplit(base_url).scheme not in ('http', 'https'):
         raise _errors.CruError('base_url must be an http or https URL')
     return base_url.rstrip('/')

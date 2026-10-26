@@ -274,6 +274,26 @@ def test_refresh_once_rotates_and_calls_back(mock, kind, run):
     assert (cru.access_token, cru.refresh_token, seen[0]['access_token']) == ('cru_at_two', 'cru_rt_two', 'cru_at_two')
 
 
+@pytest.mark.parametrize(
+    ('kwargs', 'host'),
+    [
+        ({'environment': 'sandbox'}, 'https://uk.crusandbox.com'),
+        ({'environment': 'sandbox', 'market': 'hk'}, 'https://hk.crusandbox.com'),
+        ({'market': 'hk'}, 'https://hk.cruworldwine.com'),
+    ],
+)
+def test_refresh_goes_to_the_clients_own_host(mock, kind, run, kwargs, host):
+    mock.add(401, error('AUTH_INVALID_CREDENTIALS'))
+    mock.add(200, {'access_token': 'cru_at_two'})
+    mock.add(200, envelope({'pong': True, 'client': {}}))
+    run(app(mock, kind, refresh_token='cru_rt_one', oauth_client_id='client-1', **kwargs).ping())
+    assert [str(r.url) for r in mock.requests] == [
+        host + '/api/v1/ping',
+        host + '/api/oauth/token',
+        host + '/api/v1/ping',
+    ]
+
+
 def test_refresh_keeps_refresh_token_when_none_is_returned(mock, kind, run):
     mock.add(401, error('AUTH_INVALID_CREDENTIALS'))
     mock.add(200, {'access_token': 'cru_at_two'})

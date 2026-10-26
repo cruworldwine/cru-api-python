@@ -13,7 +13,7 @@ help: ## List the targets
 install: ## Install the package and every development tool, as uv.lock pins them
 	$(UV) sync --locked
 
-generate: ## Regenerate models/, resources/, the README table and api/ (needs CRU_API_REPO)
+generate: ## Regenerate models/, resources/, the market table, the README table and api/ (needs CRU_API_REPO)
 	hack/generate.sh
 
 verify-generated: ## Fail if regenerating would change a generated file (needs CRU_API_REPO)

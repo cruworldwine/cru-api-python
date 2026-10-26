@@ -5,6 +5,11 @@ clients, `Cru` and `AsyncCru`. Each answers on one market's host,
 `https://{market}.cruworldwine.com/api/v1`, where market is `uk` (the default), `us`, `hk`, `sg`,
 `eu`, `ae` or `cn`. A credential works on its own market only.
 
+The sandbox, `https://{market}.crusandbox.com/api/v1`, has the same markets, with credentials
+issued for the sandbox, and no real money or wine changes hands there. Pass
+`environment='sandbox'`, or set `CRU_ENVIRONMENT=sandbox`; see
+[The sandbox](configuration.md#the-sandbox).
+
 | | Partner credential | Connected app (OAuth 2.0) |
 |---|---|---|
 | Who it acts for | Your own organisation | A Cru customer who authorised your app |
@@ -29,8 +34,8 @@ run at once; see [Writes and confirmations](writes-and-confirmations.md).
 ## As a connected app (OAuth 2.0)
 
 An app that acts for a Cru customer gets their tokens with the OAuth 2.0 authorization code flow
-with PKCE (S256), at `/api/oauth/authorize` and `/api/oauth/token` on the market's host. The SDK
-does not run that flow; it starts from the tokens it produced.
+with PKCE (S256), at `/api/oauth/authorize` and `/api/oauth/token` on the market's host, in the
+sandbox on the sandbox's. The SDK does not run that flow; it starts from the tokens it produced.
 
 ```python
 cru = Cru(
@@ -48,9 +53,9 @@ staged: nothing happens until the customer confirms them.
 ### Refreshing the access token
 
 Give `refresh_token` and `oauth_client_id`, and when the API answers 401 the SDK refreshes the
-access token once, at `/api/oauth/token`, and retries the request with the new one. A refresh token
-works once, so the new tokens must be stored: `on_token_refresh` is called with the token response
-after each refresh. With `AsyncCru` it may be a coroutine function.
+access token once, at `/api/oauth/token` on the client's own host, and retries the request with
+the new one. A refresh token works once, so the new tokens must be stored: `on_token_refresh` is
+called with the token response after each refresh. With `AsyncCru` it may be a coroutine function.
 
 ```python
 def save_tokens(tokens: dict[str, object]) -> None:
@@ -76,7 +81,8 @@ Anything not given is read from the environment, so `Cru()` alone works when the
 | `CRU_CLIENT_KEY`, `CRU_CLIENT_SECRET` | A partner credential |
 | `CRU_ACCESS_TOKEN` | A connected app's access token |
 | `CRU_MARKET` | The market, when neither `market` nor `base_url` is given |
-| `CRU_BASE_URL` | The API's base URL, in place of the market's |
+| `CRU_ENVIRONMENT` | `live` or `sandbox`, when `environment` is not given |
+| `CRU_BASE_URL` | The API's base URL, in place of the market's and the environment's |
 
 The credential variables are read only when no credential is passed at all: passing an
 `access_token` never picks up a key and secret from the environment.
@@ -95,5 +101,5 @@ print(client.organisation, client.market, client.currency, client.scopes, client
 - The SDK never follows redirects, so a credential is never sent to another host.
 - It never logs a client key or secret, an access or refresh token, or a request or response body,
   and none of them appears in `repr()` of a client or in an error's message.
-- `base_url` must be `http` or `https`, and `market` a market code, so a mistyped value cannot
-  send requests somewhere unexpected.
+- `base_url` must be `http` or `https`, `market` a market code and `environment` `live` or
+  `sandbox`, so a mistyped value cannot send requests somewhere unexpected.

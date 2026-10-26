@@ -1,7 +1,7 @@
 # Configuration
 
-Everything a client can be told, how long it waits, when it retries, and how to see what it does.
-`Cru` and `AsyncCru` take the same options.
+Everything a client can be told, which host it calls, how long it waits, when it retries, and how
+to see what it does. `Cru` and `AsyncCru` take the same options.
 
 ## Constructor options
 
@@ -12,11 +12,52 @@ Everything a client can be told, how long it waits, when it retries, and how to 
 | `refresh_token`, `oauth_client_id`, `oauth_client_secret` | none | What the SDK needs to refresh an expired access token. |
 | `on_token_refresh` | none | Called with the new tokens after each refresh; store them. |
 | `market` | `CRU_MARKET`, else `uk` | The market whose host to call: `uk`, `us`, `hk`, `sg`, `eu`, `ae` or `cn`. |
-| `base_url` | `CRU_BASE_URL`, else the market's | The API's base URL, for a test environment. |
+| `environment` | `CRU_ENVIRONMENT`, else `live` | `live` or `sandbox`, in any case. See [The sandbox](#the-sandbox). |
+| `base_url` | `CRU_BASE_URL`, else the market's in the environment | The API's base URL, in place of the market's and the environment's, for a server of your own. |
 | `timeout` | 30 seconds | Seconds, or an `httpx.Timeout`. See [Timeouts](#timeouts). |
 | `max_retries` | 2 | Retries after the first attempt. See [Retries](#retries). |
 | `http_client` | a new one | Your own `httpx.Client` (`httpx.AsyncClient` for `AsyncCru`). |
 | `app_info` | none | `(name, version, url)` of your application, for the User-Agent. |
+
+## The sandbox
+
+Cru's sandbox has the same API and the same markets as live, at
+`https://{market}.crusandbox.com/api/v1`, with credentials issued for the sandbox, and no real
+money or wine changes hands there. Pass `environment='sandbox'`, or set `CRU_ENVIRONMENT=sandbox`:
+
+```python
+cru = Cru(client_key='...', client_secret='...', environment='sandbox', market='hk')
+cru.base_url  # 'https://hk.crusandbox.com/api/v1'
+```
+
+There, `cru.ping().client.environment` is `test`, and a connected app's tokens are refreshed on the
+sandbox's host. Any other value of `environment` raises `CruError` when the client is made, and a
+`base_url` wins over both `market` and `environment`.
+
+## Markets
+
+`MARKETS` is every market this version of the SDK knows, in the API's order, by code; each is a
+`MarketInfo` with its `code`, `name`, the `currency` every amount on its host is in, the `symbol`
+Cru's website shows for it, and its `live_url` and `sandbox_url`. `lookup_market()` finds one by
+code, in any case, and returns `None` for a code it does not know. A market code the SDK does not
+know still makes a host, so a new market needs no new release.
+
+```python
+from cruworldwine import MARKETS, lookup_market
+
+[m.code for m in MARKETS.values()]  # ['uk', 'us', 'hk', 'sg', 'eu', 'ae', 'cn']
+lookup_market('HK').currency  # 'HKD'
+MARKETS['sg'].url('sandbox')  # 'https://sg.crusandbox.com/api/v1'
+```
+
+`cru.market_info` is the client's own market, or `None`:
+
+- with no `base_url`, the market the client was made for: `market`, else `CRU_MARKET`, else `uk`;
+- with a `base_url` on a Cru host, such as `https://hk.crusandbox.com/api/v1`, that host's market;
+- with any other `base_url`, the `market` (or `CRU_MARKET`) given, else `None`;
+- `None` too when that market is not in `MARKETS`.
+
+(`cru.market` is the market data resource: the bid and offer books.)
 
 ## Per-call options
 
