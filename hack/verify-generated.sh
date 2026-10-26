@@ -10,7 +10,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
-generated=(api src/cruworldwine/models src/cruworldwine/resources README.md)
+generated=(api src/cruworldwine/models src/cruworldwine/resources src/cruworldwine/_market_table.py README.md)
 mkdir -p "$scratch/src"
 cp -R "$root/api" "$root/README.md" "$scratch/"
 cp -R "$root/src/cruworldwine" "$scratch/src/"

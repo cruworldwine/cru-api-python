@@ -27,6 +27,8 @@ Part of this repository is generated from the API's OpenAPI spec and is **never 
 - `src/cruworldwine/models/`: one module of models per resource;
 - `src/cruworldwine/resources/`: one module per resource, with a class for `Cru` and one for
   `AsyncCru`;
+- `src/cruworldwine/_market_table.py`: each environment's URL and every market, which
+  `_markets.py` turns into `MARKETS`;
 - the method table in `README.md`, between the `sdkgen:methods` markers;
 - `api/openapi.yaml`, the copy of the spec they were generated from.
 

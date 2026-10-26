@@ -7,6 +7,7 @@ import httpx
 
 from ._base_client import AppInfo, Timeout
 from ._constants import DEFAULT_MAX_RETRIES
+from ._markets import Environment
 from .resources import AsyncResources, Resources
 
 
@@ -20,8 +21,8 @@ class Cru(Resources):
     be stored, since a refresh token works once. Refreshes are serialised, so threads sharing a
     client never spend the same refresh token twice.
 
-    The environment supplies what is not given: CRU_CLIENT_KEY, CRU_CLIENT_SECRET, CRU_ACCESS_TOKEN,
-    CRU_MARKET and CRU_BASE_URL.
+    Environment variables supply what is not given: CRU_CLIENT_KEY, CRU_CLIENT_SECRET,
+    CRU_ACCESS_TOKEN, CRU_MARKET, CRU_ENVIRONMENT and CRU_BASE_URL.
 
     Args:
         client_key: A partner credential's key, cru_live_... or cru_test_...
@@ -32,7 +33,9 @@ class Cru(Resources):
         oauth_client_secret: Your app's OAuth client secret, for a confidential client.
         on_token_refresh: Called with the token response after each refresh. Store its tokens.
         market: The market to call: uk (the default), us, hk, sg, eu, ae or cn.
-        base_url: The API's base URL, in place of the market's.
+        environment: live (the default) or sandbox, in any case. In the sandbox no real money or
+            wine changes hands, and it takes credentials issued for the sandbox.
+        base_url: The API's base URL, in place of the market's and the environment's.
         timeout: Seconds, or an httpx.Timeout. Default 30 seconds, or http_client's own timeout
             when it was given one.
         max_retries: Retries after the first attempt, for reads and partner writes. Default 2.
@@ -53,6 +56,7 @@ class Cru(Resources):
         oauth_client_secret: Optional[str] = None,
         on_token_refresh: Optional[Callable[[dict[str, Any]], None]] = None,
         market: Optional[str] = None,
+        environment: Optional[Environment] = None,
         base_url: Optional[str] = None,
         timeout: Optional[Timeout] = None,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -68,6 +72,7 @@ class Cru(Resources):
             oauth_client_secret=oauth_client_secret,
             on_token_refresh=on_token_refresh,
             market=market,
+            environment=environment,
             base_url=base_url,
             timeout=timeout,
             max_retries=max_retries,
@@ -94,7 +99,9 @@ class AsyncCru(AsyncResources):
         on_token_refresh: Called with the token response after each refresh; it may be a
             coroutine function. Store its tokens.
         market: The market to call: uk (the default), us, hk, sg, eu, ae or cn.
-        base_url: The API's base URL, in place of the market's.
+        environment: live (the default) or sandbox, in any case. In the sandbox no real money or
+            wine changes hands, and it takes credentials issued for the sandbox.
+        base_url: The API's base URL, in place of the market's and the environment's.
         timeout: Seconds, or an httpx.Timeout. Default 30 seconds, or http_client's own timeout
             when it was given one.
         max_retries: Retries after the first attempt, for reads and partner writes. Default 2.
@@ -115,6 +122,7 @@ class AsyncCru(AsyncResources):
         oauth_client_secret: Optional[str] = None,
         on_token_refresh: Optional[Callable[[dict[str, Any]], Union[Awaitable[None], None]]] = None,
         market: Optional[str] = None,
+        environment: Optional[Environment] = None,
         base_url: Optional[str] = None,
         timeout: Optional[Timeout] = None,
         max_retries: int = DEFAULT_MAX_RETRIES,
@@ -130,6 +138,7 @@ class AsyncCru(AsyncResources):
             oauth_client_secret=oauth_client_secret,
             on_token_refresh=on_token_refresh,
             market=market,
+            environment=environment,
             base_url=base_url,
             timeout=timeout,
             max_retries=max_retries,

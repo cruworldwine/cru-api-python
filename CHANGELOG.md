@@ -7,6 +7,20 @@ change the public API, and each such change is listed under **Changed** or **Rem
 
 ## [Unreleased]
 
+### Added
+
+- The sandbox: `environment='sandbox'` on `Cru` and `AsyncCru`, or `CRU_ENVIRONMENT=sandbox`,
+  calls `https://{market}.crusandbox.com/api/v1`, and refreshes OAuth tokens there. `live`, the
+  default, calls `https://{market}.cruworldwine.com/api/v1` as before. Either is taken in any case;
+  any other value raises `CruError` when the client is made. A `base_url` still wins over both.
+- `MARKETS`, every market by code in the API's order, and `lookup_market(code)`, which finds one in
+  any case or returns `None`. Each is a `MarketInfo` with `code`, `name`, `currency`, `symbol`,
+  `live_url` and `sandbox_url`, and `url(environment)`. The table is generated from the spec.
+- `market_info` on both clients: the `MarketInfo` of the market the client was made for (`market`,
+  `CRU_MARKET` or `uk`). With a `base_url`, it is the market of a Cru host such as
+  `hk.crusandbox.com`, else the `market` given, else `None`; `None` too for a market not in
+  `MARKETS`.
+
 ## [0.2.0] - 2026-10-24
 
 The first release on PyPI. It changes behaviour 0.1.0 had (see **Changed**), hence 0.2.0.

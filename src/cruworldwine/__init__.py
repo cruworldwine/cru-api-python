@@ -22,6 +22,7 @@ from ._errors import (
     UnprocessableEntityError,
 )
 from ._logs import setup_logging as _setup_logging
+from ._markets import MARKETS, MarketInfo, lookup_market
 from ._models import Model
 from ._types import AsyncPage, Page, Response, Write
 from ._version import VERSION
@@ -30,6 +31,7 @@ __version__ = VERSION
 __all__ = [
     'DEFAULT_MAX_RETRIES',
     'DEFAULT_TIMEOUT',
+    'MARKETS',
     'VERSION',
     'APIConnectionError',
     'APIStatusError',
@@ -43,6 +45,7 @@ __all__ = [
     'CruError',
     'GoneError',
     'InternalServerError',
+    'MarketInfo',
     'MethodNotAllowedError',
     'Model',
     'NotFoundError',
@@ -55,6 +58,7 @@ __all__ = [
     'UnprocessableEntityError',
     'Write',
     '__version__',
+    'lookup_market',
     'models',
 ]
 

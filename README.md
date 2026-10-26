@@ -57,8 +57,23 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-`Cru()` alone reads `CRU_CLIENT_KEY` and `CRU_CLIENT_SECRET` (or `CRU_ACCESS_TOKEN`) and
-`CRU_MARKET` from the environment. [Authentication](docs/authentication.md) covers both ways in.
+`Cru()` alone reads `CRU_CLIENT_KEY` and `CRU_CLIENT_SECRET` (or `CRU_ACCESS_TOKEN`),
+`CRU_MARKET` and `CRU_ENVIRONMENT` from the environment. [Authentication](docs/authentication.md)
+covers both ways in.
+
+## Sandbox
+
+To build and test where no real money or wine changes hands, use the sandbox, with credentials
+issued for it: `environment='sandbox'` (or `CRU_ENVIRONMENT=sandbox`) calls
+`https://{market}.crusandbox.com/api/v1` in place of `https://{market}.cruworldwine.com/api/v1`.
+
+```python
+cru = Cru(client_key='...', client_secret='...', environment='sandbox', market='hk')
+print(cru.market_info.currency)  # HKD
+```
+
+`MARKETS` and `lookup_market()` list each market's name, currency, symbol and URLs;
+[Configuration](docs/configuration.md#the-sandbox) has the details.
 
 ## Typed models
 
@@ -78,8 +93,8 @@ Import any model from `cruworldwine.models`.
 
 - [Authentication](docs/authentication.md): partner credentials, connected apps and OAuth refresh,
   the environment.
-- [Configuration](docs/configuration.md): constructor and per-call options, `with_options()`,
-  timeouts, retries, logging, `app_info`.
+- [Configuration](docs/configuration.md): constructor and per-call options, the sandbox and the
+  markets, `with_options()`, timeouts, retries, logging, `app_info`.
 - [Async](docs/async.md): `AsyncCru`, async paging and concurrency.
 - [Pagination](docs/pagination.md): pages, and walking every item.
 - [Writes and confirmations](docs/writes-and-confirmations.md): idempotency references, staged

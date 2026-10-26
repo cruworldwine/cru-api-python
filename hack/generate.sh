@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Regenerates the generated code (src/cruworldwine/models/, src/cruworldwine/resources/, the README
-# method table and api/openapi.yaml) with the generator in Cru's API repository.
+# Regenerates the generated code (src/cruworldwine/models/, src/cruworldwine/resources/,
+# src/cruworldwine/_market_table.py, the README method table and api/openapi.yaml) with the generator
+# in Cru's API repository.
 #
 #   CRU_API_REPO=/path/to/the/api/web-root hack/generate.sh [sdk-dir]
 #
