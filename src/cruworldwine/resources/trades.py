@@ -53,6 +53,7 @@ class Trades:
         *,
         lwin: Union[str, Sequence[str], None] = None,
         status: Union[str, Sequence[str], None] = None,
+        purchase_ref: Union[str, Sequence[str], None] = None,
         sort: Optional[str] = None,
         direction: Optional[str] = None,
         limit: Optional[int] = None,
@@ -82,6 +83,10 @@ class Trades:
                 case: in_portfolio, for_sale, sold, in_transit or delivered, as units[].status
                 gives them. A line with no units stored with Cru matches none. Anything else is
                 refused with VALIDATION_UNSUPPORTED_VALUE.
+            purchase_ref: Only the lines of these purchases: up to 50 comma-separated, in any
+                case, each ord- and a number, as each purchase’s purchase_ref and a
+                purchase.created webhook’s data.purchase_ref give it. Anything else is refused
+                with VALIDATION_INVALID_VALUE.
             sort: What to order by: traded_at, the date of the order, the only choice.
             direction: desc for newest first, or asc for oldest first.
             limit: Number of purchases to return. A larger value is refused with
@@ -98,6 +103,7 @@ class Trades:
             query={
                 'lwin': lwin,
                 'status': status,
+                'purchase_ref': purchase_ref,
                 'sort': sort,
                 'direction': direction,
                 'limit': limit,
@@ -115,6 +121,7 @@ class Trades:
         lwin: Union[str, Sequence[str], None] = None,
         status: Union[str, Sequence[str], None] = None,
         deliverable_warehouse_code: Union[str, Sequence[str], None] = None,
+        sale_ref: Union[str, Sequence[str], None] = None,
         sort: Optional[str] = None,
         direction: Optional[str] = None,
         limit: Optional[int] = None,
@@ -137,8 +144,10 @@ class Trades:
         to the Cru warehouse deliver_to names, by deliver_by. status says how far it has got:
         transfer_needed until a transfer to Cru is booked, then awaiting_transfer, with
         transfer_ref naming the transfer; on_purchase_order while it is due in on a purchase
-        order; and delivered_to_cru once it is there. Wine stored with Cru has no deliver_to,
-        and is always delivered_to_cru.
+        order; and delivered_to_cru once it is there. A sale from your offers feed (or Liv-ex)
+        is on_purchase_order until every unit of it has reached Cru, then delivered_to_cru; one
+        filled from wine already stored with Cru is delivered_to_cru at once. Wine stored with
+        Cru has no deliver_to, and is always delivered_to_cru.
 
         Scope: trades:read.
 
@@ -152,6 +161,10 @@ class Trades:
             deliverable_warehouse_code: Only sales of wine held outside Cru going to any of
                 these Cru warehouses, comma-separated: UK_DRAK, HK_KERRY, SG_TOLL, FR_DARTESS,
                 US_NAPA. Wine stored with Cru matches none. An unknown code is refused with
+                VALIDATION_INVALID_VALUE.
+            sale_ref: Only the units of these sales: up to 50 comma-separated, in any case, each
+                stpo-, lx-, csi- or esp- and a number, as each sale’s sale_ref and a
+                sale.created webhook’s data.sale_ref give it. Anything else is refused with
                 VALIDATION_INVALID_VALUE.
             sort: What to order by: traded_at, the date of the sale, the only choice.
             direction: desc for newest first, or asc for oldest first.
@@ -170,6 +183,7 @@ class Trades:
                 'lwin': lwin,
                 'status': status,
                 'deliverable_warehouse_code': deliverable_warehouse_code,
+                'sale_ref': sale_ref,
                 'sort': sort,
                 'direction': direction,
                 'limit': limit,
@@ -198,6 +212,7 @@ class AsyncTrades:
         *,
         lwin: Union[str, Sequence[str], None] = None,
         status: Union[str, Sequence[str], None] = None,
+        purchase_ref: Union[str, Sequence[str], None] = None,
         sort: Optional[str] = None,
         direction: Optional[str] = None,
         limit: Optional[int] = None,
@@ -227,6 +242,10 @@ class AsyncTrades:
                 case: in_portfolio, for_sale, sold, in_transit or delivered, as units[].status
                 gives them. A line with no units stored with Cru matches none. Anything else is
                 refused with VALIDATION_UNSUPPORTED_VALUE.
+            purchase_ref: Only the lines of these purchases: up to 50 comma-separated, in any
+                case, each ord- and a number, as each purchase’s purchase_ref and a
+                purchase.created webhook’s data.purchase_ref give it. Anything else is refused
+                with VALIDATION_INVALID_VALUE.
             sort: What to order by: traded_at, the date of the order, the only choice.
             direction: desc for newest first, or asc for oldest first.
             limit: Number of purchases to return. A larger value is refused with
@@ -243,6 +262,7 @@ class AsyncTrades:
             query={
                 'lwin': lwin,
                 'status': status,
+                'purchase_ref': purchase_ref,
                 'sort': sort,
                 'direction': direction,
                 'limit': limit,
@@ -260,6 +280,7 @@ class AsyncTrades:
         lwin: Union[str, Sequence[str], None] = None,
         status: Union[str, Sequence[str], None] = None,
         deliverable_warehouse_code: Union[str, Sequence[str], None] = None,
+        sale_ref: Union[str, Sequence[str], None] = None,
         sort: Optional[str] = None,
         direction: Optional[str] = None,
         limit: Optional[int] = None,
@@ -282,8 +303,10 @@ class AsyncTrades:
         to the Cru warehouse deliver_to names, by deliver_by. status says how far it has got:
         transfer_needed until a transfer to Cru is booked, then awaiting_transfer, with
         transfer_ref naming the transfer; on_purchase_order while it is due in on a purchase
-        order; and delivered_to_cru once it is there. Wine stored with Cru has no deliver_to,
-        and is always delivered_to_cru.
+        order; and delivered_to_cru once it is there. A sale from your offers feed (or Liv-ex)
+        is on_purchase_order until every unit of it has reached Cru, then delivered_to_cru; one
+        filled from wine already stored with Cru is delivered_to_cru at once. Wine stored with
+        Cru has no deliver_to, and is always delivered_to_cru.
 
         Scope: trades:read.
 
@@ -297,6 +320,10 @@ class AsyncTrades:
             deliverable_warehouse_code: Only sales of wine held outside Cru going to any of
                 these Cru warehouses, comma-separated: UK_DRAK, HK_KERRY, SG_TOLL, FR_DARTESS,
                 US_NAPA. Wine stored with Cru matches none. An unknown code is refused with
+                VALIDATION_INVALID_VALUE.
+            sale_ref: Only the units of these sales: up to 50 comma-separated, in any case, each
+                stpo-, lx-, csi- or esp- and a number, as each sale’s sale_ref and a
+                sale.created webhook’s data.sale_ref give it. Anything else is refused with
                 VALIDATION_INVALID_VALUE.
             sort: What to order by: traded_at, the date of the sale, the only choice.
             direction: desc for newest first, or asc for oldest first.
@@ -315,6 +342,7 @@ class AsyncTrades:
                 'lwin': lwin,
                 'status': status,
                 'deliverable_warehouse_code': deliverable_warehouse_code,
+                'sale_ref': sale_ref,
                 'sort': sort,
                 'direction': direction,
                 'limit': limit,

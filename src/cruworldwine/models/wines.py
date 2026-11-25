@@ -26,6 +26,8 @@ class Wine(Model):
         region: The region.
         colour: Red, white, rosé and so on.
         product_url: The wine’s page on the Cru storefront for the market you called.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         market_price: Always present: Cru’s market price in data.currency, or null when it has
             none.
         bids: The bids on the wine, as GET /market/wines/{lwin18}/bids gives them.
@@ -41,6 +43,7 @@ class Wine(Model):
         'region',
         'colour',
         'product_url',
+        'image_url',
         'market_price',
         'bids',
         'offers',
@@ -55,6 +58,7 @@ class Wine(Model):
     region: Optional[str]
     colour: Optional[str]
     product_url: Optional[str]
+    image_url: str
     market_price: Optional[float]
     bids: list[MarketBid]
     offers: list[MarketOffer]
@@ -72,6 +76,8 @@ class WineDetail(Model):
         region: The region.
         colour: Red, white, rosé and so on.
         product_url: The wine’s page on the Cru storefront for the market you called.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         market_price: Always present: Cru’s market price in data.currency, or null when it has
             none.
         short_name: A shorter display name.
@@ -96,6 +102,7 @@ class WineDetail(Model):
         'region',
         'colour',
         'product_url',
+        'image_url',
         'market_price',
         'short_name',
         'country',
@@ -122,6 +129,7 @@ class WineDetail(Model):
     region: Optional[str]
     colour: Optional[str]
     product_url: Optional[str]
+    image_url: str
     market_price: Optional[float]
     short_name: Optional[str]
     country: Optional[str]

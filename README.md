@@ -89,6 +89,42 @@ for wine in cru.portfolio.list(is_listed=True).auto_paging_iter():  # PortfolioW
 
 Import any model from `cruworldwine.models`.
 
+## Webhooks
+
+Rather than polling your trades, have Cru send your server a signed `sale.created` when you sell
+and a `purchase.created` when an order of yours is paid. Add a webhook with a client key and secret
+granted `webhooks:manage`, and keep the signing secret, which is shown once:
+
+```python
+hook = cru.webhooks.create(url='https://example.com/cru/webhooks')
+save_secret(hook.signing_secret)  # whsec_...
+cru.webhooks.test(hook.id)  # Cru sends a webhook.test within seconds
+```
+
+Check every delivery with `verify_webhook` before trusting it. It raises
+`WebhookVerificationError` for a body Cru did not sign with that secret, or one more than five
+minutes old, and accepts either signature during the day after `rotate_secret()`:
+
+```python
+from cruworldwine import WebhookVerificationError, models, verify_webhook
+
+
+@app.post('/cru/webhooks')  # Flask
+def cru_webhook():
+    try:
+        event = verify_webhook(request.get_data(), request.headers, os.environ['CRU_WEBHOOK_SECRET'])
+    except WebhookVerificationError:
+        return '', 401
+    if event.type == 'sale.created':
+        sale = models.SaleCreatedData.parse(event.data)  # sale.sale_ref, sale.sales
+        queue_work(event.id, sale)  # deduplicate on event.id; answer first, work afterwards
+    return '', 200
+```
+
+`cru.webhook_deliveries` shows every delivery and its attempts, and `cru.webhook_events.list(after=...)`
+lists every event since the last one you handled, to catch up after an outage.
+[The webhooks guide](https://developers.cruworldwine.com/guides/webhooks) has the rest.
+
 ## Documentation
 
 - [Authentication](docs/authentication.md): partner credentials, connected apps and OAuth refresh,
@@ -167,6 +203,20 @@ same methods: await them, and a `Page` is an `AsyncPage`.
 | `cru.confirmations.confirm(code)` | `POST /confirmations/{code}` | `Write[Any]` |
 | `cru.confirmations.cancel(code)` | `DELETE /confirmations/{code}` | `None` |
 | `cru.photos.get(id)` | `GET /photos/{id}` | `bytes` |
+| `cru.account.get()` | `GET /account` | `AccountSummary` |
+| `cru.webhooks.list()` | `GET /webhooks` | `list[Webhook]` |
+| `cru.webhooks.create(...)` | `POST /webhooks` | `WebhookWithSecret` |
+| `cru.webhooks.get(id)` | `GET /webhooks/{id}` | `Webhook` |
+| `cru.webhooks.update(id, ...)` | `PATCH /webhooks/{id}` | `Webhook` |
+| `cru.webhooks.remove(id)` | `DELETE /webhooks/{id}` | `None` |
+| `cru.webhooks.test(id)` | `POST /webhooks/{id}/test` | `WebhookDelivery` |
+| `cru.webhooks.rotate_secret(id)` | `POST /webhooks/{id}/rotate` | `WebhookWithSecret` |
+| `cru.webhooks.retry(id)` | `POST /webhooks/{id}/retry` | `WebhookRetry` |
+| `cru.webhook_deliveries.list(...)` | `GET /webhooks/deliveries` | `Page[WebhookDelivery]` |
+| `cru.webhook_deliveries.get(id)` | `GET /webhooks/deliveries/{id}` | `WebhookDeliveryDetail` |
+| `cru.webhook_deliveries.resend(id)` | `POST /webhooks/deliveries/{id}/resend` | `WebhookDelivery` |
+| `cru.webhook_events.list(...)` | `GET /webhooks/events` | `list[WebhookEventSummary]` |
+| `cru.webhook_events.resend(id)` | `POST /webhooks/events/{id}/resend` | `list[WebhookDelivery]` |
 <!-- /sdkgen:methods -->
 
 ## Contributing, security and licence

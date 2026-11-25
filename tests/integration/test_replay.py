@@ -7,6 +7,7 @@ account data, so they are read from there and never copied here.
 import glob
 import inspect
 import json
+import keyword
 import os
 import re
 
@@ -45,7 +46,7 @@ def check(value, raw):
     if isinstance(value, Model):
         assert value.raw == raw
         for name in value._fields:
-            check(getattr(value, name), raw.get(name))
+            check(getattr(value, name + '_' if keyword.iskeyword(name) else name), raw.get(name))
     elif isinstance(value, list):
         assert len(value) == len(raw)
         for v, r in zip(value, raw):

@@ -41,6 +41,8 @@ class OwnBid(Model):
         vintage: The vintage year. 1000 means non-vintage.
         pack_size: Pack format, for example 6x75cl.
         product_url: The wine’s page on the Cru storefront for the market you called.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         price: Gross price per unit you offered — before Cru’s commission — in the currency of
             the market you called. A bid placed in another currency is converted at today’s
             rate, as My Bids on Cru shows it.
@@ -78,6 +80,7 @@ class OwnBid(Model):
         'vintage',
         'pack_size',
         'product_url',
+        'image_url',
         'price',
         'currency',
         'bid_currency',
@@ -103,6 +106,7 @@ class OwnBid(Model):
     vintage: Optional[int]
     pack_size: Optional[str]
     product_url: Optional[str]
+    image_url: str
     price: float
     currency: str
     bid_currency: str

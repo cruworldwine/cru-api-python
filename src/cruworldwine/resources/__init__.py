@@ -11,6 +11,8 @@ import httpx
 
 from .._base_client import AsyncAPIClient, SyncAPIClient
 from .._operations import Op, Operation
+from .account import _OPERATIONS as _ACCOUNT
+from .account import Account, AsyncAccount
 from .bids import _OPERATIONS as _BIDS
 from .bids import AsyncBids, Bids
 from .confirmations import _OPERATIONS as _CONFIRMATIONS
@@ -31,6 +33,12 @@ from .trades import _OPERATIONS as _TRADES
 from .trades import AsyncTrades, Trades
 from .warehouses import _OPERATIONS as _WAREHOUSES
 from .warehouses import AsyncWarehouses, Warehouses
+from .webhook_deliveries import _OPERATIONS as _WEBHOOK_DELIVERIES
+from .webhook_deliveries import AsyncWebhookDeliveries, WebhookDeliveries
+from .webhook_events import _OPERATIONS as _WEBHOOK_EVENTS
+from .webhook_events import AsyncWebhookEvents, WebhookEvents
+from .webhooks import _OPERATIONS as _WEBHOOKS
+from .webhooks import AsyncWebhooks, Webhooks
 from .wines import _OPERATIONS as _WINES
 from .wines import AsyncWines, Wines
 
@@ -38,6 +46,8 @@ if TYPE_CHECKING:
     from ..models.ping import Ping
 
 __all__ = [
+    'Account',
+    'AsyncAccount',
     'AsyncBids',
     'AsyncConfirmations',
     'AsyncInbondAddresses',
@@ -49,6 +59,9 @@ __all__ = [
     'AsyncResources',
     'AsyncTrades',
     'AsyncWarehouses',
+    'AsyncWebhookDeliveries',
+    'AsyncWebhookEvents',
+    'AsyncWebhooks',
     'AsyncWines',
     'Bids',
     'Confirmations',
@@ -61,6 +74,9 @@ __all__ = [
     'Resources',
     'Trades',
     'Warehouses',
+    'WebhookDeliveries',
+    'WebhookEvents',
+    'Webhooks',
     'Wines',
 ]
 
@@ -78,6 +94,10 @@ _EVERY: tuple[Operation, ...] = (
     *_INBOND_ADDRESSES,
     *_CONFIRMATIONS,
     *_PHOTOS,
+    *_ACCOUNT,
+    *_WEBHOOKS,
+    *_WEBHOOK_DELIVERIES,
+    *_WEBHOOK_EVENTS,
 )
 _OPS: dict[str, Operation] = {op.id: op for op in _EVERY}
 
@@ -96,6 +116,10 @@ class Resources(SyncAPIClient):
     inbond_addresses: InbondAddresses
     confirmations: Confirmations
     photos: Photos
+    account: Account
+    webhooks: Webhooks
+    webhook_deliveries: WebhookDeliveries
+    webhook_events: WebhookEvents
 
     def _attach(self) -> None:
         self.portfolio = Portfolio(self)
@@ -109,6 +133,10 @@ class Resources(SyncAPIClient):
         self.inbond_addresses = InbondAddresses(self)
         self.confirmations = Confirmations(self)
         self.photos = Photos(self)
+        self.account = Account(self)
+        self.webhooks = Webhooks(self)
+        self.webhook_deliveries = WebhookDeliveries(self)
+        self.webhook_events = WebhookEvents(self)
 
     def ping(
         self,
@@ -158,6 +186,10 @@ class AsyncResources(AsyncAPIClient):
     inbond_addresses: AsyncInbondAddresses
     confirmations: AsyncConfirmations
     photos: AsyncPhotos
+    account: AsyncAccount
+    webhooks: AsyncWebhooks
+    webhook_deliveries: AsyncWebhookDeliveries
+    webhook_events: AsyncWebhookEvents
 
     def _attach(self) -> None:
         self.portfolio = AsyncPortfolio(self)
@@ -171,6 +203,10 @@ class AsyncResources(AsyncAPIClient):
         self.inbond_addresses = AsyncInbondAddresses(self)
         self.confirmations = AsyncConfirmations(self)
         self.photos = AsyncPhotos(self)
+        self.account = AsyncAccount(self)
+        self.webhooks = AsyncWebhooks(self)
+        self.webhook_deliveries = AsyncWebhookDeliveries(self)
+        self.webhook_events = AsyncWebhookEvents(self)
 
     async def ping(
         self,

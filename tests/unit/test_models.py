@@ -8,7 +8,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from cruworldwine import Model, models
-from cruworldwine._models import _registry
+from cruworldwine._models import _attr, _registry
 
 MODELS = [getattr(models, name) for name in models.__all__]
 
@@ -50,7 +50,7 @@ def check(cls, value):
     assert parsed == cls.parse(copy.deepcopy(original))
     assert isinstance(repr(parsed), str)
     for name in cls._fields:
-        got = getattr(parsed, name)
+        got = getattr(parsed, _attr(name))
         sent = original.get(name)
         nested = cls._nested.get(name)
         if nested is None:
@@ -76,6 +76,13 @@ def check(cls, value):
 def test_any_json_parses_and_round_trips(cls, data):
     check(cls, data.draw(json_values, label='any JSON'))
     check(cls, data.draw(SHAPED[cls], label='shaped like the model'))
+
+
+def test_a_field_named_after_a_keyword_is_read_with_an_underscore():
+    line = models.PortfolioLine({'import': {'file': 'cellar.xlsx', 'imported_at': '2026-11-18T09:00:00Z'}})
+    assert line.import_.file == 'cellar.xlsx'
+    assert line['import'] == {'file': 'cellar.xlsx', 'imported_at': '2026-11-18T09:00:00Z'}
+    assert not hasattr(line, 'import')
 
 
 def test_every_generated_model_is_registered():
