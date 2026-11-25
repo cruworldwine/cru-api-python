@@ -8,7 +8,7 @@ from typing import ClassVar, Optional
 
 from .._models import Model
 
-__all__ = ['LinePricing', 'LineWarehouse', 'PortfolioLine', 'PortfolioWine']
+__all__ = ['LinePricing', 'LineWarehouse', 'PortfolioLine', 'PortfolioLineImport', 'PortfolioWine']
 
 
 class LinePricing(Model):
@@ -113,6 +113,8 @@ class PortfolioLine(Model):
         is_listed: Whether the units are listed for sale. Always true on GET /offers and GET
             /offers/{code}, and for a supplier’s own stock.
         pricing: The LinePricing.
+        import_: For wine held outside Cru that the customer added by uploading a wine list on
+            Cru’s site: the list it came from. null for every other line.
         photo_urls: Photos of the units in this line, on Cru’s media. [] when there are none.
         quantity: Units in this line.
         warehouse: The LineWarehouse.
@@ -127,12 +129,14 @@ class PortfolioLine(Model):
         'condition_text',
         'is_listed',
         'pricing',
+        'import',
         'photo_urls',
         'quantity',
         'warehouse',
     )
     _nested: ClassVar[dict[str, tuple[str, bool]]] = {
         'pricing': ('LinePricing', False),
+        'import': ('PortfolioLineImport', False),
         'warehouse': ('LineWarehouse', False),
     }
 
@@ -144,9 +148,27 @@ class PortfolioLine(Model):
     condition_text: Optional[str]
     is_listed: bool
     pricing: LinePricing
+    import_: Optional[PortfolioLineImport]
     photo_urls: list[str]
     quantity: int
     warehouse: LineWarehouse
+
+
+class PortfolioLineImport(Model):
+    """The PortfolioLineImport object.
+
+    For wine held outside Cru that the customer added by uploading a wine list on Cru’s site:
+    the list it came from. null for every other line.
+
+    Attributes:
+        file: The name of the file uploaded.
+        imported_at: When it was uploaded, RFC 3339 UTC.
+    """
+
+    _fields = ('file', 'imported_at')
+
+    file: Optional[str]
+    imported_at: Optional[str]
 
 
 class PortfolioWine(Model):
@@ -158,6 +180,8 @@ class PortfolioWine(Model):
         vintage: The vintage year. 1000 means non-vintage.
         pack_size: Pack format, for example 6x75cl.
         product_url: The wine’s page on the Cru storefront for the market you called.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         currency: ISO 4217 currency of every price here: the currency of the market you called.
             A price bought or listed in another currency is converted at today’s rate. One of:
             GBP, USD, HKD, SGD, EUR, AED, CNY; more may be added.
@@ -182,6 +206,7 @@ class PortfolioWine(Model):
         'vintage',
         'pack_size',
         'product_url',
+        'image_url',
         'currency',
         'total_quantity',
         'market_price',
@@ -196,6 +221,7 @@ class PortfolioWine(Model):
     vintage: Optional[int]
     pack_size: Optional[str]
     product_url: Optional[str]
+    image_url: str
     currency: str
     total_quantity: int
     market_price: Optional[float]

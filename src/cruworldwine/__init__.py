@@ -26,6 +26,7 @@ from ._markets import MARKETS, MarketInfo, lookup_market
 from ._models import Model
 from ._types import AsyncPage, Page, Response, Write
 from ._version import VERSION
+from ._webhooks import WEBHOOK_TOLERANCE, WebhookVerificationError, verify_webhook
 
 __version__ = VERSION
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     'DEFAULT_TIMEOUT',
     'MARKETS',
     'VERSION',
+    'WEBHOOK_TOLERANCE',
     'APIConnectionError',
     'APIStatusError',
     'APITimeoutError',
@@ -56,10 +58,12 @@ __all__ = [
     'RequestInProgressError',
     'Response',
     'UnprocessableEntityError',
+    'WebhookVerificationError',
     'Write',
     '__version__',
     'lookup_market',
     'models',
+    'verify_webhook',
 ]
 
 _setup_logging()

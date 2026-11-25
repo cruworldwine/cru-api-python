@@ -19,6 +19,8 @@ class Purchase(Model):
         wine_name: Cru’s name for the wine.
         vintage: The vintage year. 1000 means non-vintage.
         pack_size: Pack format, for example 6x75cl.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         quantity: Units in this order line, less any cancelled or refunded.
         price: What you paid per unit.
         total: price × quantity.
@@ -27,6 +29,9 @@ class Purchase(Model):
         reference: The Cru order number, which each line of the order shows. A purchase has no
             id of its own.
         traded_at: When the order was placed, RFC 3339 UTC.
+        purchase_ref: The purchase this line is part of, ord- and a number, such as ord-90211:
+            the same on every line of one order. A purchase.created webhook names it as
+            data.purchase_ref, and the purchase_ref filter takes it.
         order_status: The order’s status, as Cru’s site labels it, such as “Paid and
             Processing”.
         order_url: The order’s page on Cru Markets, on the site it was placed on. It opens for
@@ -44,12 +49,14 @@ class Purchase(Model):
         'wine_name',
         'vintage',
         'pack_size',
+        'image_url',
         'quantity',
         'price',
         'total',
         'currency',
         'reference',
         'traded_at',
+        'purchase_ref',
         'order_status',
         'order_url',
         'invoice_number',
@@ -62,12 +69,14 @@ class Purchase(Model):
     wine_name: Optional[str]
     vintage: Optional[int]
     pack_size: Optional[str]
+    image_url: str
     quantity: int
     price: float
     total: float
     currency: str
     reference: str
     traded_at: str
+    purchase_ref: str
     order_status: Optional[str]
     order_url: str
     invoice_number: Optional[str]
@@ -109,6 +118,8 @@ class Sale(Model):
         wine_name: Cru’s name for the wine.
         vintage: The vintage year. 1000 means non-vintage.
         pack_size: Pack format, for example 6x75cl.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         quantity: Always 1: each unit sold is its own sale.
         price: What the unit sold for, the Sold list’s Sold For. For wine held outside Cru, that
             is after Cru’s commission: sold_price less commission. For wine stored with Cru it
@@ -120,6 +131,14 @@ class Sale(Model):
             CNY; more may be added.
         reference: Always null: a sale has no order number.
         traded_at: When it sold, RFC 3339 UTC.
+        sale_ref: The sale this unit was part of, a prefix and a number: stpo- for wine sold
+            from a supplier’s stock, shared by every unit of that sale, as is lx- for a sale
+            through Liv-ex; csi- for one unit stored with Cru; esp- for one unit held outside
+            Cru. A sale.created webhook names it as data.sale_ref, and the sale_ref filter takes
+            it.
+        trade_id: The trade’s own number on a stpo- or lx- sale: the supplier’s purchase order
+            or trade number, or the Liv-ex trade number, LX and digits. null until the order is
+            placed with the supplier, and always on csi- and esp- sales.
         cru_id: The unit’s Cru ID.
         transfer_ref: The transfer that brings it to Cru, such as SM00004417, once one is
             booked.
@@ -144,9 +163,11 @@ class Sale(Model):
             expected date or, without one, two weeks after it sold. null for wine stored with
             Cru.
         status: Where the wine is in reaching Cru, as the status filter takes it:
-            transfer_needed, awaiting_transfer, on_purchase_order or delivered_to_cru. Wine
-            stored with Cru is always delivered_to_cru. One of: transfer_needed,
-            awaiting_transfer, on_purchase_order, delivered_to_cru; more may be added.
+            transfer_needed, awaiting_transfer, on_purchase_order or delivered_to_cru. A sale
+            from your offers feed is on_purchase_order until every unit of it has reached Cru,
+            unless it was filled from wine already stored with Cru. Wine stored with Cru is
+            always delivered_to_cru. One of: transfer_needed, awaiting_transfer,
+            on_purchase_order, delivered_to_cru; more may be added.
     """
 
     _fields = (
@@ -154,12 +175,15 @@ class Sale(Model):
         'wine_name',
         'vintage',
         'pack_size',
+        'image_url',
         'quantity',
         'price',
         'total',
         'currency',
         'reference',
         'traded_at',
+        'sale_ref',
+        'trade_id',
         'cru_id',
         'transfer_ref',
         'cost',
@@ -180,12 +204,15 @@ class Sale(Model):
     wine_name: Optional[str]
     vintage: Optional[int]
     pack_size: Optional[str]
+    image_url: str
     quantity: int
     price: Optional[float]
     total: Optional[float]
     currency: str
     reference: Optional[str]
     traded_at: Optional[str]
+    sale_ref: str
+    trade_id: Optional[str]
     cru_id: Optional[int]
     transfer_ref: Optional[str]
     cost: Optional[float]

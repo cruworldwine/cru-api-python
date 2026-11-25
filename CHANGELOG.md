@@ -7,6 +7,36 @@ change the public API, and each such change is listed under **Changed** or **Rem
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-25
+
+### Added
+
+- Webhooks. `cru.webhooks`: `list()`, `create(url=..., event_types=...)`, whose answer carries the
+  signing secret once, `get(id)`, `update(id, ...)`, `remove(id)`, `test(id)`, `rotate_secret(id)`
+  and `retry(id)`. `cru.webhook_deliveries`: `list(...)`, paged, `get(id)`, with every attempt and
+  the body sent, and `resend(id)`. `cru.webhook_events`: `list(after=..., type=..., limit=...)`, to
+  catch up from the last event handled, and `resend(id)`. Each needs `webhooks:manage`, on a client
+  key and secret.
+- `verify_webhook(body, headers, secret)`, which checks a delivery's Standard Webhooks signature
+  (either one, during the day after a rotation) and its timestamp (within `WEBHOOK_TOLERANCE`, five
+  minutes), and returns its `WebhookEvent`, or raises `WebhookVerificationError`.
+  `models.SaleCreatedData`, `PurchaseCreatedData` and `WebhookTestData` parse its `data` by type.
+- `cru.account.get()`, `GET /account`: the account's contact details and company users, its
+  membership, and the figures on Cru's Account Summary page. Needs `account:read`, which a connected
+  app gets only by asking for it by name.
+- `image_url`, the wine's bottle photo, on every wine: market wines and their bid and offer details,
+  your bids, portfolio and offers, the wine catalogue, purchases and sales.
+- `purchase_ref` on each purchase and `sale_ref` and `trade_id` on each sale, and the
+  `trades.list_purchases(purchase_ref=...)` and `trades.list_sales(sale_ref=...)` filters, which
+  take up to 50.
+- `kind` (partner or customer) and `account_number` on `ping()`'s client, and `import_` on a
+  portfolio line: the wine list a line held outside Cru was uploaded from.
+
+### Changed
+
+- A field named after a Python keyword is read with `_` after it: the API's `import` is `.import_`.
+  `model['import']` and `.raw` keep the API's own name.
+
 ## [0.2.0] - 2026-10-26
 
 The first release on PyPI. It changes behaviour 0.1.0 had (see **Changed**), hence 0.2.0.
@@ -111,6 +141,7 @@ The first release on PyPI. It changes behaviour 0.1.0 had (see **Changed**), hen
 - Fields and values this version does not know are kept in `.raw`; `extra_query`, `extra_body` and
   `client.request()` reach parameters and endpoints it does not know.
 
-[Unreleased]: https://github.com/cruworldwine/cru-api-python/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/cruworldwine/cru-api-python/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/cruworldwine/cru-api-python/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/cruworldwine/cru-api-python/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/cruworldwine/cru-api-python/releases/tag/v0.1.0

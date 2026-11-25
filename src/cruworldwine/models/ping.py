@@ -15,9 +15,14 @@ class ApiClient(Model):
     """The ApiClient object.
 
     Attributes:
+        kind: How the request was made: partner for a client key and secret, whether Cru issued
+            it to a partner or to the customer themselves; customer for a connected app’s access
+            token. One of: partner, customer; more may be added.
         environment: live on production, test everywhere else.
         key_prefix: The start of the client key that called, such as cru_live_ABCD... Null for a
             connected app.
+        account_number: The Cru account number of the customer the credential or token acts for,
+            five digits.
         organisation: The account the credential acts for.
         label: The credential’s label, or the connected app’s registered name.
         market: The market you called, such as uk. One of: uk, us, hk, sg, eu, ae, cn, fr; more
@@ -29,10 +34,23 @@ class ApiClient(Model):
             when the access token expires.
     """
 
-    _fields = ('environment', 'key_prefix', 'organisation', 'label', 'market', 'currency', 'scopes', 'expires_at')
+    _fields = (
+        'kind',
+        'environment',
+        'key_prefix',
+        'account_number',
+        'organisation',
+        'label',
+        'market',
+        'currency',
+        'scopes',
+        'expires_at',
+    )
 
+    kind: str
     environment: str
     key_prefix: Optional[str]
+    account_number: Optional[str]
     organisation: Optional[str]
     label: Optional[str]
     market: str

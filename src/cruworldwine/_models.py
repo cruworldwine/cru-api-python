@@ -1,16 +1,23 @@
 from __future__ import annotations
 
 import copy
+import keyword
 from collections.abc import Mapping
 from typing import Any, ClassVar, Optional
 
 _registry: dict[str, type[Model]] = {}
 
 
+def _attr(name: str) -> str:
+    """The attribute a field is read as: its name, with _ after a Python keyword (import -> import_)."""
+    return name + '_' if keyword.iskeyword(name) else name
+
+
 class Model:
     """An object the API answered with.
 
-    Its attributes are the fields this version of the SDK knows; a field that is missing is None,
+    Its attributes are the fields this version of the SDK knows, a field named after a Python keyword
+    with _ after it (import is .import_); a field that is missing is None,
     and one of a type the SDK did not expect is kept as the API sent it. Every field the API sent,
     including ones added after this SDK was released, is kept in .raw and can be read as
     model["name"].
@@ -39,7 +46,7 @@ class Model:
                     value = model.parse(value)
                 elif isinstance(value, list):
                     value = [model.parse(v) for v in value]
-            setattr(self, name, value)
+            setattr(self, _attr(name), value)
 
     @classmethod
     def parse(cls, value: Any) -> Any:
@@ -64,7 +71,7 @@ class Model:
         return isinstance(other, Model) and type(other) is type(self) and other.raw == self.raw
 
     def __repr__(self) -> str:
-        shown = ', '.join(f'{k}={getattr(self, k)!r}' for k in self._fields[:4])
+        shown = ', '.join(f'{_attr(k)}={getattr(self, _attr(k))!r}' for k in self._fields[:4])
         return f'{type(self).__name__}({shown}{", ..." if len(self._fields) > 4 else ""})'
 
 

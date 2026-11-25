@@ -117,6 +117,8 @@ class MarketBidDetail(Model):
         vintage: The vintage year. 1000 means non-vintage.
         pack_size: Pack format, for example 6x75cl.
         product_url: The wine’s page on the Cru storefront for the market you called.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         currency: ISO 4217 currency of every price in this market: the currency of the market
             you called. One of: GBP, USD, HKD, SGD, EUR, AED, CNY; more may be added.
         code: Opaque bid code: BID- and 43 more characters. Do not parse it. Your own bids carry
@@ -138,6 +140,7 @@ class MarketBidDetail(Model):
         'vintage',
         'pack_size',
         'product_url',
+        'image_url',
         'currency',
         'code',
         'price',
@@ -154,6 +157,7 @@ class MarketBidDetail(Model):
     vintage: Optional[int]
     pack_size: Optional[str]
     product_url: Optional[str]
+    image_url: str
     currency: str
     code: str
     price: float
@@ -229,6 +233,8 @@ class MarketOfferDetail(Model):
         vintage: The vintage year. 1000 means non-vintage.
         pack_size: Pack format, for example 6x75cl.
         product_url: The wine’s page on the Cru storefront for the market you called.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         currency: ISO 4217 currency of every price in this market: the currency of the market
             you called. One of: GBP, USD, HKD, SGD, EUR, AED, CNY; more may be added.
         code: Opaque offer code: OFFER- and 43 more characters. Do not parse it.
@@ -262,6 +268,7 @@ class MarketOfferDetail(Model):
         'vintage',
         'pack_size',
         'product_url',
+        'image_url',
         'currency',
         'code',
         'price',
@@ -281,6 +288,7 @@ class MarketOfferDetail(Model):
     vintage: Optional[int]
     pack_size: Optional[str]
     product_url: Optional[str]
+    image_url: str
     currency: str
     code: str
     price: float
@@ -304,6 +312,8 @@ class MarketWine(Model):
         vintage: The vintage year. 1000 means non-vintage.
         pack_size: Pack format, for example 6x75cl.
         product_url: The wine’s page on the Cru storefront for the market you called.
+        image_url: The bottle photo Cru’s site shows beside the wine, to show beside it in
+            yours. Never null: a wine Cru has no photo of gets the site’s placeholder bottle.
         currency: ISO 4217 currency of every price in this market: the currency of the market
             you called. One of: GBP, USD, HKD, SGD, EUR, AED, CNY; more may be added.
         bids: Cru's bids on the wine, in book order: Cru's own first, then by price. Present on
@@ -322,6 +332,7 @@ class MarketWine(Model):
         'vintage',
         'pack_size',
         'product_url',
+        'image_url',
         'currency',
         'bids',
         'market_price',
@@ -339,6 +350,7 @@ class MarketWine(Model):
     vintage: Optional[int]
     pack_size: Optional[str]
     product_url: Optional[str]
+    image_url: str
     currency: str
     bids: Optional[list[MarketBid]]
     market_price: Optional[float]
